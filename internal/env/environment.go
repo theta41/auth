@@ -2,10 +2,12 @@ package env
 
 import (
 	"errors"
+	"os"
+	"sync"
+
 	"github.com/sirupsen/logrus"
 	"gitlab.com/g6834/team41/auth/internal/cfg"
 	"gitlab.com/g6834/team41/auth/internal/repositories"
-	"os"
 )
 
 type Environment struct {
@@ -15,13 +17,14 @@ type Environment struct {
 }
 
 var e *Environment
+var once sync.Once
 
 const (
 	HostAddress = "HOST_ADDRESS"
 )
 
 func E() *Environment {
-	if e == nil {
+	once.Do(func() {
 		e = &Environment{}
 
 		e.L = logrus.New()
@@ -35,7 +38,7 @@ func E() *Environment {
 		if err != nil {
 			panic(err)
 		}
-	}
+	})
 
 	return e
 }
