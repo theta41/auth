@@ -2,12 +2,15 @@ package env
 
 import (
 	"errors"
+	"log"
 	"os"
 	"sync"
 
 	"github.com/sirupsen/logrus"
 	"gitlab.com/g6834/team41/auth/internal/cfg"
 	"gitlab.com/g6834/team41/auth/internal/repositories"
+
+	"github.com/joho/godotenv"
 )
 
 type Environment struct {
@@ -21,15 +24,23 @@ var once sync.Once
 
 const (
 	HostAddress = "HOST_ADDRESS"
+	HostPort    = "HOST_PORT"
 )
 
 func E() *Environment {
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Error loading .env file")
+	}
+
 	once.Do(func() {
 		e = &Environment{}
 
 		e.L = logrus.New()
 		e.C = &cfg.Config{
 			HostAddress: os.Getenv(HostAddress),
+			HostPort:    os.Getenv(HostPort),
 		}
 
 		// TODO: add repositories.UserRepository implementation.

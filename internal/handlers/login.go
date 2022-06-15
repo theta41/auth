@@ -10,5 +10,6 @@ func (l Login) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// возвращает куки access и refresh, содержащие jwt-токены
 	// +redirect_uri
 
-	panic("not yet implemented")
+	w.Write([]byte("ok"))
+	//panic("not yet implemented")
 }

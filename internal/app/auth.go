@@ -1,6 +1,8 @@
 package app
 
 import (
+	"fmt"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"gitlab.com/g6834/team41/auth/internal/env"
@@ -25,7 +27,8 @@ func (a *App) Run() error {
 	a.registerMiddleware()
 	a.bindHandlers()
 
-	return http.ListenAndServe(env.E().C.HostAddress, a.m)
+	addr := fmt.Sprintf("%s:%s", env.E().C.HostAddress, env.E().C.HostPort)
+	return http.ListenAndServe(addr, a.m)
 }
 
 const (
