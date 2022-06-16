@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gitlab.com/g6834/team41/auth/internal/env"
 	"gitlab.com/g6834/team41/auth/internal/handlers"
 
@@ -25,6 +26,11 @@ func (a *App) Run() error {
 	a.registerMiddleware()
 	a.bindHandlers()
 
+	//start prometheus
+	//TODO make it nicer later :)
+	http.Handle(MetricsPath, promhttp.Handler())
+	go http.ListenAndServe(env.E().C.MetricsAddress, nil)
+
 	return http.ListenAndServe(env.E().C.HostAddress, a.m)
 }
 
@@ -32,6 +38,7 @@ const (
 	LoginPath    = "/login"
 	LogoutPath   = "/logout"
 	ValidatePath = "/validate"
+	MetricsPath  = "/metrics"
 )
 
 func (a *App) bindHandlers() {

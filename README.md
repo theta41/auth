@@ -1,16 +1,24 @@
 ## Notes
 
-Docker build locally
+### Go run
+Run
+```
+go run cmd/auth/main.go -c config.yaml
+```
+
+### Docker
+
+Build locally
 ```
 docker build -t auth .
 ```
 
-Docker run locally with attached STDOUT etc
+Run locally with attached STDOUT etc
 ```
-docker run -e HOST_ADDRESS=:3000 -p 3000:3000 auth
+docker run -p 3000:3000 auth
 ```
 
-Docker run locally detached
+Run locally detached
 ```
-docker run -d -e HOST_ADDRESS=:3000 -p 3000:3000 auth
+docker run -d -p 3000:3000 auth
 ```
