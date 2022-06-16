@@ -8,6 +8,10 @@ import (
 
 func main() {
 	env.E().L.Info("starting service...")
+	env.E().M.StartServiceCounter.Inc()
+
+	defer env.OnStop()
+	//TODO gracefull shutdown app
 
 	ur, err := jsondb.NewJsonUsers("example.json")
 	if err != nil {
