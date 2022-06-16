@@ -41,7 +41,7 @@ func E() *Environment {
 		e.loadConfig(configYamlFilename)
 
 		initSentry(e.C.SentryDSN)
-		initJaeger(ServiceName, e.C.JaegerCollector)
+		initJaeger("team41-"+ServiceName, e.C.JaegerCollector)
 
 		//init prometheus counters
 		e.M = newMetrics(ServiceName)
