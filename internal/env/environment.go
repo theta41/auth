@@ -7,13 +7,11 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"gitlab.com/g6834/team41/auth/internal/cfg"
-	"gitlab.com/g6834/team41/auth/internal/repositories"
 )
 
 type Environment struct {
-	C  *cfg.Config
-	L  *logrus.Logger
-	UR *repositories.UserRepository
+	C *cfg.Config
+	L *logrus.Logger
 }
 
 var e *Environment
