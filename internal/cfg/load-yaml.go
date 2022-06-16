@@ -1,4 +1,4 @@
-package env
+package cfg
 
 import (
 	"io/ioutil"

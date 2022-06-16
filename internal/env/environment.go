@@ -85,8 +85,9 @@ func (E *Environment) Tracer() trace.Tracer {
 }
 
 func (E *Environment) loadConfig(filename string) {
-	E.C = &cfg.Config{}
-	if err := loadYaml(filename, E.C); err != nil {
+	var err error
+	E.C, err = cfg.NewConfig(filename)
+	if err != nil {
 		panic(err)
 	}
 

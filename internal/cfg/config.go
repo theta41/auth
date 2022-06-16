@@ -7,3 +7,12 @@ type Config struct {
 	SentryDSN       string `json:"sentry_dsn" yaml:"sentry_dsn"`
 	JaegerCollector string `json:"jaeger_collector" yaml:"jaeger_collector"`
 }
+
+func NewConfig(yamlFile string) (*Config, error) {
+	conf := &Config{}
+	err := loadYaml(yamlFile, conf)
+	if err != nil {
+		return nil, err
+	}
+	return conf, nil
+}
