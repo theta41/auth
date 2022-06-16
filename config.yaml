@@ -1,4 +1,4 @@
 host_address: :3000
 metrics_address: :9000
-sentry_dsn: https://b38d5b4e3d27449cba4a66f4b2eac9e1@sentry.k8s.golang-mts-teta.ru/12
+sentry_dsn: https://d16566550d394592ba91bca6b2041318@sentry.k8s.golang-mts-teta.ru/20
 jaeger_collector: http://jaeger-instance-collector.observability:14268/api/traces
