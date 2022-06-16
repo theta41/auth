@@ -36,8 +36,9 @@ func NewJsonUsers(path string) (*JsonUsers, error) {
 	}
 
 	db := &JsonUsers{
-		file:      *f,
-		fileMutex: sync.Mutex{},
+		file:           *f,
+		fileMutex:      sync.Mutex{},
+		atomicityMutex: sync.Mutex{},
 	}
 
 	return db, nil
