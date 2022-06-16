@@ -6,17 +6,20 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gitlab.com/g6834/team41/auth/internal/env"
 	"gitlab.com/g6834/team41/auth/internal/handlers"
+	"gitlab.com/g6834/team41/auth/internal/repositories"
 
 	"net/http"
 )
 
 type App struct {
-	m *chi.Mux
+	m  *chi.Mux
+	ur repositories.UserRepository
 }
 
-func NewApp() *App {
+func NewApp(ur repositories.UserRepository) *App {
 	a := &App{
-		m: chi.NewRouter(),
+		m:  chi.NewRouter(),
+		ur: ur,
 	}
 
 	return a

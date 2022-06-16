@@ -11,7 +11,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/sirupsen/logrus"
 	"gitlab.com/g6834/team41/auth/internal/cfg"
-	"gitlab.com/g6834/team41/auth/internal/repositories"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/propagation"
@@ -22,10 +21,9 @@ import (
 )
 
 type Environment struct {
-	C  *cfg.Config
-	L  *logrus.Logger
-	UR *repositories.UserRepository
-	M  *Metrics
+	C *cfg.Config
+	L *logrus.Logger
+	M *Metrics
 }
 
 type Metrics struct {
