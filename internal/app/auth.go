@@ -16,10 +16,9 @@ type App struct {
 	ur repositories.UserRepository
 }
 
-func NewApp(ur repositories.UserRepository) *App {
+func NewApp() *App {
 	a := &App{
-		m:  chi.NewRouter(),
-		ur: ur,
+		m: chi.NewRouter(),
 	}
 
 	return a

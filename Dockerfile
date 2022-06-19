@@ -10,4 +10,5 @@ FROM alpine:3.15.4
 WORKDIR /app
 COPY --from=builder /app/application /app/application
 COPY *.yaml ./
+COPY *.json ./
 CMD ["/app/application", "-c", "/app/config.yaml"]
