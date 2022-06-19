@@ -1,10 +1,8 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 
-	"github.com/getsentry/sentry-go"
 	"gitlab.com/g6834/team41/auth/internal/env"
 )
 
@@ -16,10 +14,5 @@ func (l Logout) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	env.E().M.LogoutCounter.Inc()
 
-	// TODO:
-	// logout
-	// +redirect_uri
-
-	sentry.CaptureException(errors.New("not yet implemented"))
-	panic("not yet implemented")
+	w.Header().Set("Set-Cookie", "Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly")
 }
