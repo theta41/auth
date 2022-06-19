@@ -1,9 +1,8 @@
 package cfg
 
 import (
-	"io/ioutil"
-
 	"gopkg.in/yaml.v3"
+	"io/ioutil"
 )
 
 func loadYaml(yamlFile string, yamlCfg interface{}) error {

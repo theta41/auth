@@ -2,6 +2,8 @@ package env
 
 import (
 	"errors"
+	"gitlab.com/g6834/team41/auth/internal/jsondb"
+	"gitlab.com/g6834/team41/auth/internal/repositories"
 	"os"
 	"sync"
 	"time"
@@ -14,9 +16,10 @@ import (
 )
 
 type Environment struct {
-	C *cfg.Config
-	L *logrus.Logger
-	M *Metrics
+	C  *cfg.Config
+	L  *logrus.Logger
+	M  *Metrics
+	UR repositories.UserRepository
 }
 
 var e *Environment
@@ -25,6 +28,7 @@ var once sync.Once
 const (
 	HostAddress    = "HOST_ADDRESS"
 	MetricsAddress = "METRICS_ADDRESS"
+	JWTSecret      = "JWT_SECRET"
 	ServiceName    = "auth"
 	TracerName     = ServiceName
 )
@@ -34,6 +38,9 @@ func E() *Environment {
 		//prepare
 		args := parseArgs()
 		configYamlFilename := args["c"]
+		if configYamlFilename == "" {
+			configYamlFilename = "config.yaml"
+		}
 
 		//init Environment
 		e = &Environment{}
@@ -53,8 +60,10 @@ func E() *Environment {
 			panic(err)
 		}
 
-		//test
-		sentry.CaptureMessage("Is it works?")
+		e.UR, err = jsondb.NewJsonUsers("example.json")
+		if err != nil {
+			e.L.Panic(err)
+		}
 	})
 
 	return e
@@ -71,6 +80,8 @@ func (E *Environment) validate() error {
 		return errors.New("$" + HostAddress + " isn't set")
 	case E.C.MetricsAddress == "":
 		return errors.New("$" + MetricsAddress + " isn't set")
+	case E.C.JWTSecret == "":
+		return errors.New("$" + JWTSecret + " isn't set")
 	case E.C.SentryDSN == "":
 		return errors.New("sentry DSN isn't set")
 	case E.C.JaegerCollector == "":
@@ -100,4 +111,5 @@ func (E *Environment) loadConfig(filename string) {
 
 	E.C.HostAddress = getEnv(HostAddress, E.C.HostAddress)
 	E.C.MetricsAddress = getEnv(MetricsAddress, E.C.MetricsAddress)
+	E.C.JWTSecret = getEnv(JWTSecret, E.C.JWTSecret)
 }

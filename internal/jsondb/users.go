@@ -15,6 +15,8 @@ type JsonUsers struct {
 	fileMutex sync.Mutex
 	// atomicityMutex should be used when we have more than one query associated with one request.
 	atomicityMutex sync.Mutex
+	// path contains current db path.
+	path string
 }
 
 func NewJsonUsers(path string) (*JsonUsers, error) {
@@ -39,6 +41,7 @@ func NewJsonUsers(path string) (*JsonUsers, error) {
 		file:           *f,
 		fileMutex:      sync.Mutex{},
 		atomicityMutex: sync.Mutex{},
+		path:           path,
 	}
 
 	return db, nil
@@ -68,17 +71,14 @@ func (db *JsonUsers) write(m []models.User) error {
 	db.fileMutex.Lock()
 	defer db.fileMutex.Unlock()
 
-	_, err := db.file.Seek(0, io.SeekStart)
+	err := db.file.Close()
 	if err != nil {
 		return err
 	}
+	f, err := os.OpenFile(db.path, os.O_RDWR|os.O_TRUNC, os.ModeExclusive)
+	db.file = *f
 
 	bytes, err := json.Marshal(m)
-	if err != nil {
-		return err
-	}
-
-	err = db.file.Truncate(0)
 	if err != nil {
 		return err
 	}

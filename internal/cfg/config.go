@@ -1,11 +1,15 @@
 package cfg
 
 type Config struct {
-	HostAddress    string `json:"host_address" yaml:"host_address"`
-	MetricsAddress string `json:"metrics_address" yaml:"metrics_address"`
+	JWTSecret string `yaml:"jwt_secret"`
+	// JWTTTL stored in seconds.
+	JWTTTL int `yaml:"jwt_ttl"`
 
-	SentryDSN       string `json:"sentry_dsn" yaml:"sentry_dsn"`
-	JaegerCollector string `json:"jaeger_collector" yaml:"jaeger_collector"`
+	HostAddress    string `yaml:"host_address"`
+	MetricsAddress string `yaml:"metrics_address"`
+
+	SentryDSN       string `yaml:"sentry_dsn"`
+	JaegerCollector string `yaml:"jaeger_collector"`
 }
 
 func NewConfig(yamlFile string) (*Config, error) {
