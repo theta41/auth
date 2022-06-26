@@ -10,6 +10,8 @@ type Config struct {
 
 	SentryDSN       string `yaml:"sentry_dsn"`
 	JaegerCollector string `yaml:"jaeger_collector"`
+
+	Profiling bool `yaml:"-"`
 }
 
 func NewConfig(yamlFile string) (*Config, error) {
