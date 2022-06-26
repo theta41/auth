@@ -2,7 +2,6 @@ package app
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gitlab.com/g6834/team41/auth/internal/env"
 	"gitlab.com/g6834/team41/auth/internal/handlers"
@@ -64,5 +63,6 @@ func (a *App) bindHandlers() {
 }
 
 func (a *App) registerMiddleware() {
-	a.m.Use(middleware.Logger)
+	//a.m.Use(middleware.Logger)
+	a.m.Use(middlewares.Logrus)
 }
