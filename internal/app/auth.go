@@ -6,6 +6,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gitlab.com/g6834/team41/auth/internal/env"
 	"gitlab.com/g6834/team41/auth/internal/handlers"
+	"gitlab.com/g6834/team41/auth/internal/middlewares"
 	"gitlab.com/g6834/team41/auth/internal/repositories"
 	"net/http"
 	"net/http/pprof"
@@ -41,6 +42,7 @@ const (
 	LogoutPath   = "/logout"
 	ValidatePath = "/validate"
 	MetricsPath  = "/metrics"
+	ProfilePath  = "/profile"
 )
 
 func (a *App) bindHandlers() {
@@ -48,25 +50,16 @@ func (a *App) bindHandlers() {
 	a.m.Handle(LogoutPath, handlers.Logout{})
 	a.m.Handle(ValidatePath, handlers.Validate{})
 
+	a.m.Handle(ProfilePath, handlers.Profiling{})
+
 	a.m.Route("/debug/pprof", func(r chi.Router) {
-		r.Use(CheckProf)
+		r.Use(middlewares.CheckProf)
 
 		r.HandleFunc("/", pprof.Index)
 		r.HandleFunc("/cmdline", pprof.Cmdline)
 		r.HandleFunc("/profile", pprof.Profile)
 		r.HandleFunc("/symbol", pprof.Symbol)
 		r.HandleFunc("/trace", pprof.Trace)
-	})
-}
-
-func CheckProf(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !env.E().C.Profiling {
-			w.WriteHeader(http.StatusForbidden)
-			w.Write([]byte("{}"))
-		} else {
-			next.ServeHTTP(w, r)
-		}
 	})
 }
 
