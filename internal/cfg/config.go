@@ -12,6 +12,14 @@ type Config struct {
 	JaegerCollector string `yaml:"jaeger_collector"`
 
 	Profiling bool `yaml:"-"`
+
+	DB struct {
+		Login    string `yaml:"-"`
+		Password string `yaml:"-"`
+		Address  string `yaml:"address"`
+		Port     int    `yaml:"port"`
+		Name     string `yaml:"name"`
+	} `yaml:"db"`
 }
 
 func NewConfig(yamlFile string) (*Config, error) {

@@ -6,3 +6,8 @@ jaeger_collector: http://jaeger-instance-collector.observability:14268/api/trace
 # do not use in production!
 jwt_secret: example
 jwt_ttl: 300
+
+db:
+  address: 91.185.93.34
+  port: 27017
+  name: team41
