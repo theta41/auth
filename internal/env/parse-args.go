@@ -7,7 +7,7 @@ func parseArgs() map[string]string {
 	values := make([]string, len(names))
 
 	for i := range names {
-		flag.StringVar(&values[i], names[i], "", "flag "+names[i])
+		flag.StringVar(&values[i], names[i], "config.yaml", "flag "+names[i])
 	}
 
 	flag.Parse()
