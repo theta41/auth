@@ -7,7 +7,7 @@ build image:
 
 deploy:
   variables:
-    HELM_TEMPLATE: https://gitlab.com/g6834/team41/auth/-/raw/development/infrasctructure/auth.tgz
+    HELM_TEMPLATE: https://gitlab.com/g6834/team41/auth/-/raw/development/infrastructure/auth.tgz
 
 newman tests:
   variables:
