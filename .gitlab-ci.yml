@@ -5,6 +5,10 @@ build image:
     DB_LOGIN: $DB_LOGIN
     DB_PASSWORD: $DB_PASSWORD
 
+deploy:
+  variables:
+    HELM_TEMPLATE: https://gitlab.com/g6834/team41/auth/-/raw/development/infrasctructure/auth.tgz
+
 newman tests:
   variables:
     TEST_COLLECTION_NAME: auth
