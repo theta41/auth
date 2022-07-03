@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"gitlab.com/g6834/team41/auth/internal/domain/auth"
 	"gitlab.com/g6834/team41/auth/internal/env"
 	authgrpc "gitlab.com/g6834/team41/auth/internal/grpc"
 	"gitlab.com/g6834/team41/auth/internal/handlers"
@@ -16,11 +17,17 @@ import (
 type App struct {
 	m  *chi.Mux
 	ur repositories.UserRepository
+	ds *auth.Service
 }
 
 func NewApp() *App {
+	var ur repositories.UserRepository
+	//TODO mongo Users
+
 	a := &App{
-		m: chi.NewRouter(),
+		m:  chi.NewRouter(),
+		ur: ur,
+		ds: auth.New(ur),
 	}
 
 	return a
@@ -35,7 +42,7 @@ func (a *App) Run() error {
 	http.Handle(MetricsPath, promhttp.Handler())
 	go http.ListenAndServe(env.E().C.MetricsAddress, nil)
 
-	authgrpc.StartServer(":4000")
+	authgrpc.StartServer(":4000", a.ds)
 
 	return http.ListenAndServe(env.E().C.HostAddress, a.m)
 }
