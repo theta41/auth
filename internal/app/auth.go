@@ -1,24 +1,27 @@
 package app
 
 import (
-	"github.com/go-chi/chi/v5"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gitlab.com/g6834/team41/auth/internal/env"
-	"gitlab.com/g6834/team41/auth/internal/handlers"
-	"gitlab.com/g6834/team41/auth/internal/middlewares"
-	"gitlab.com/g6834/team41/auth/internal/repositories"
 	"net/http"
 	"net/http/pprof"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"gitlab.com/g6834/team41/auth/internal/domain/auth"
+	"gitlab.com/g6834/team41/auth/internal/env"
+	authgrpc "gitlab.com/g6834/team41/auth/internal/grpc"
+	"gitlab.com/g6834/team41/auth/internal/handlers"
+	"gitlab.com/g6834/team41/auth/internal/middlewares"
 )
 
 type App struct {
 	m  *chi.Mux
-	ur repositories.UserRepository
+	ds *auth.Service
 }
 
 func NewApp() *App {
 	a := &App{
-		m: chi.NewRouter(),
+		m:  chi.NewRouter(),
+		ds: auth.New(env.E().UR),
 	}
 
 	return a
@@ -33,6 +36,8 @@ func (a *App) Run() error {
 	http.Handle(MetricsPath, promhttp.Handler())
 	go http.ListenAndServe(env.E().C.MetricsAddress, nil)
 
+	authgrpc.StartServer(":4000", a.ds)
+
 	return http.ListenAndServe(env.E().C.HostAddress, a.m)
 }
 
@@ -45,7 +50,7 @@ const (
 )
 
 func (a *App) bindHandlers() {
-	a.m.Handle(LoginPath, handlers.Login{})
+	a.m.Handle(LoginPath, handlers.NewLogin(a.ds))
 	a.m.Handle(LogoutPath, handlers.Logout{})
 	a.m.Handle(ValidatePath, handlers.Validate{})
 
