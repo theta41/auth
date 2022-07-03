@@ -50,7 +50,7 @@ const (
 )
 
 func (a *App) bindHandlers() {
-	a.m.Handle(LoginPath, handlers.Login{})
+	a.m.Handle(LoginPath, handlers.NewLogin(a.ds))
 	a.m.Handle(LogoutPath, handlers.Logout{})
 	a.m.Handle(ValidatePath, handlers.Validate{})
 

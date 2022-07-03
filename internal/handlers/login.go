@@ -21,7 +21,13 @@ type Login struct {
 	auth ports.Auth
 }
 
-func (l *Login) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func NewLogin(auth ports.Auth) Login {
+	return Login{
+		auth: auth,
+	}
+}
+
+func (l Login) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	_, span := env.E().Tracer().Start(r.Context(), "Login")
 	defer span.End()
 
@@ -38,7 +44,7 @@ func (l *Login) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (l *Login) handle(w http.ResponseWriter, r *http.Request) error {
+func (l Login) handle(w http.ResponseWriter, r *http.Request) error {
 	// Parse body.
 	req, err := parseRequest(r)
 	if err != nil {
