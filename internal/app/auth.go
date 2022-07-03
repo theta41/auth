@@ -1,14 +1,16 @@
 package app
 
 import (
+	"net/http"
+	"net/http/pprof"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gitlab.com/g6834/team41/auth/internal/env"
+	authgrpc "gitlab.com/g6834/team41/auth/internal/grpc"
 	"gitlab.com/g6834/team41/auth/internal/handlers"
 	"gitlab.com/g6834/team41/auth/internal/middlewares"
 	"gitlab.com/g6834/team41/auth/internal/repositories"
-	"net/http"
-	"net/http/pprof"
 )
 
 type App struct {
@@ -32,6 +34,8 @@ func (a *App) Run() error {
 	//TODO make it nicer later :)
 	http.Handle(MetricsPath, promhttp.Handler())
 	go http.ListenAndServe(env.E().C.MetricsAddress, nil)
+
+	authgrpc.StartServer(":4000")
 
 	return http.ListenAndServe(env.E().C.HostAddress, a.m)
 }

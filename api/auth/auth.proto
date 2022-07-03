@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+//
+// build from project root:
+//   protoc --go_out=. --go-grpc_out=. api/auth/auth.proto
+//
+
+option go_package = "api/auth";
+
+service AuthService {
+    rpc Validate (ValidateRequest) returns (ValidateResponse);
+}
+
+message ValidateRequest {
+    string login = 1;
+    string access_token = 2;
+    string refresh_token = 3;
+}
+
+message ValidateResponse {
+    bool success = 1;
+    string login = 2;
+    string access_token = 4;
+    string refresh_token = 5;
+}
