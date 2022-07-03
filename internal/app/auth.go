@@ -11,23 +11,17 @@ import (
 	authgrpc "gitlab.com/g6834/team41/auth/internal/grpc"
 	"gitlab.com/g6834/team41/auth/internal/handlers"
 	"gitlab.com/g6834/team41/auth/internal/middlewares"
-	"gitlab.com/g6834/team41/auth/internal/repositories"
 )
 
 type App struct {
 	m  *chi.Mux
-	ur repositories.UserRepository
 	ds *auth.Service
 }
 
 func NewApp() *App {
-	var ur repositories.UserRepository
-	//TODO mongo Users
-
 	a := &App{
 		m:  chi.NewRouter(),
-		ur: ur,
-		ds: auth.New(ur),
+		ds: auth.New(env.E().UR),
 	}
 
 	return a
