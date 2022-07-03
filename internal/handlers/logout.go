@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"gitlab.com/g6834/team41/auth/internal/env"
+	"gitlab.com/g6834/team41/auth/internal/handlers/util"
 )
 
 type Logout struct{}
@@ -13,6 +14,10 @@ func (l Logout) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer span.End()
 
 	env.E().M.LogoutCounter.Inc()
+
+	//clear cookies
+	util.ClearLoginCookie(w)
+	util.ClearTokensCookie(w)
 
 	w.Header().Set("Set-Cookie", "Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly")
 }

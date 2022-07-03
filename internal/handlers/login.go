@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"gitlab.com/g6834/team41/auth/internal/handlers/util"
 	"gitlab.com/g6834/team41/auth/internal/ports"
 
 	"github.com/getsentry/sentry-go"
@@ -58,6 +59,9 @@ func (l Login) handle(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	// Prepare response
+	util.PutLoginToCookie(w, req.Login)
+	util.PutTokensToCookie(w, tokens)
+
 	resp := struct {
 		AccessToken  string `json:"accessToken"`
 		RefreshToken string `json:"refreshToken"`
