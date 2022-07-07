@@ -1,4 +1,5 @@
 host_address: :3000
+grpc_address: :4000
 metrics_address: :9000
 sentry_dsn: https://d16566550d394592ba91bca6b2041318@sentry.k8s.golang-mts-teta.ru/20
 jaeger_collector: http://jaeger-instance-collector.observability:14268/api/traces
@@ -11,3 +12,5 @@ db:
   address: 91.185.93.34
   port: 27017
   name: team41
+  login: team41
+  pass: mNgdxQTbhVGd

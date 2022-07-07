@@ -14,8 +14,8 @@ import (
 )
 
 type LoginRequest struct {
-	Login    string `json:"login"`
-	Password string `json:"password"`
+	Login    string `json:"login" excample:"t@t.org"`
+	Password string `json:"password" excample:"123456"`
 }
 
 type Login struct {
@@ -45,6 +45,14 @@ func (l Login) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// @Summary Login
+// @Description Login
+// @Accept json
+// @Produce json
+// @Param task body LoginRequest true "Login"
+// @Success 200
+// @Failure 500
+// @Router /login [get]
 func (l Login) handle(w http.ResponseWriter, r *http.Request) error {
 	// Parse body.
 	req, err := parseRequest(r)

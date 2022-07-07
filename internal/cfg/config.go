@@ -7,6 +7,7 @@ type Config struct {
 
 	HostAddress    string `yaml:"host_address"`
 	MetricsAddress string `yaml:"metrics_address"`
+	GrpcAddress    string `yaml:"grpc_address"`
 
 	SentryDSN       string `yaml:"sentry_dsn"`
 	JaegerCollector string `yaml:"jaeger_collector"`
@@ -14,8 +15,8 @@ type Config struct {
 	Profiling bool `yaml:"-"`
 
 	DB struct {
-		Login    string `yaml:"-"`
-		Password string `yaml:"-"`
+		Login    string `yaml:"login"`
+		Password string `yaml:"pass"`
 		Address  string `yaml:"address"`
 		Port     int    `yaml:"port"`
 		Name     string `yaml:"name"`
