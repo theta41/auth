@@ -21,6 +21,12 @@ func (stub stubdb) GetUser(login string) (*models.User, error) {
 		PasswordHash: "65e84be33532fb784c48129675f9eff3a682b27168c0ea744b2cf58ee02337c5",
 	}, nil
 }
+func (stub stubdb) AddUser(user models.User) error {
+	return nil
+}
+func (stub stubdb) DeleteUser(login string) error {
+	return nil
+}
 
 func TestBasicAuth(t *testing.T) {
 	cases := []struct {
