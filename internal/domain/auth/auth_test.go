@@ -56,27 +56,25 @@ func (a *AuthTestSuite) DeleteUser(login string) error  { return nil }
 
 // Tests /////
 
-func (a *AuthTestSuite) TestLogin() {
+func (a *AuthTestSuite) TestCreateTokens() {
 
 	cases := []struct {
 		name                  string
 		login                 string
-		password              string
 		expectAccessTokenLen  int
 		expectRefreshTokenLen int
 		expectError           bool
 	}{
-		{"no_login", "", "", 0, 0, true},
-		{"invalid_password", "test", "test", 0, 0, true},
-		{"error_update_token", "broken-change-token", "qwerty", 0, 0, true},
-		{"good_login", "test", "qwerty", 36, 125, false},
+		{"no_login", "", 0, 0, true},
+		{"error_update_token", "broken-change-token", 0, 0, true},
+		{"good_login", "test", 36, 125, false},
 	}
 
 	for _, tCase := range cases {
 		tc := tCase
 		a.Run(tc.name, func() {
 
-			tokens, err := a.auth.Login(tc.login, tc.password)
+			tokens, err := a.auth.CreateTokens(tc.login)
 
 			if tc.expectError {
 				assert.Error(a.T(), err)

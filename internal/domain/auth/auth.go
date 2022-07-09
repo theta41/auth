@@ -29,16 +29,17 @@ func New(db repositories.UserRepository, cfg JwtConfigInterface) *Service {
 	}
 }
 
-func (s *Service) Login(login, password string) (models.TokenPair, error) {
+func (s *Service) CreateTokens(login string) (models.TokenPair, error) {
 	user, err := s.db.GetUser(login)
 	if err != nil {
 		return models.TokenPair{}, fmt.Errorf("invalid login/password")
 	}
 
-	pass := auth.GetHash(password)
-	if user.PasswordHash != pass {
-		return models.TokenPair{}, fmt.Errorf("invalid login/password")
-	}
+	//// Verified in BasicAuth midleware
+	// pass := auth.GetHash(password)
+	// if user.PasswordHash != pass {
+	// 	return models.TokenPair{}, fmt.Errorf("invalid login/password")
+	// }
 
 	jwt, err := s.updateTokens(user)
 	if err != nil {

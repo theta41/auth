@@ -48,14 +48,23 @@ const (
 	LoginPath    = "/login"
 	LogoutPath   = "/logout"
 	ValidatePath = "/validate"
+	InfoPath     = "/i"
 	MetricsPath  = "/metrics"
 	ProfilePath  = "/profile"
 )
 
 func (a *App) bindHandlers() {
-	a.m.Handle(LoginPath, handlers.NewLogin(a.ds))
-	a.m.Handle(LogoutPath, handlers.Logout{})
+	a.m.Handle(
+		LoginPath,
+		middlewares.NewBasicAuth(env.E().UR)(handlers.NewLogin(a.ds)),
+	)
+	a.m.Handle(
+		LogoutPath,
+		middlewares.NewBasicAuth(env.E().UR)(handlers.Logout{}),
+	)
+
 	a.m.Handle(ValidatePath, handlers.Validate{})
+	a.m.Handle(InfoPath, handlers.Info{})
 
 	a.m.Handle(ProfilePath, handlers.Profiling{})
 
@@ -75,7 +84,7 @@ func (a *App) bindHandlers() {
 func (a *App) registerMiddleware() {
 	//a.m.Use(middleware.Logger)
 	a.m.Use(middlewares.NewLogrus(env.E().L))
-	a.m.Use(middlewares.NewBasicAuth(env.E().UR))
+	//a.m.Use(middlewares.NewBasicAuth(env.E().UR))
 }
 
 func bindSwagger(r *chi.Mux) {

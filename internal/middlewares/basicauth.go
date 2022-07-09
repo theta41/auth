@@ -1,10 +1,12 @@
 package middlewares
 
 import (
+	"context"
 	"crypto/subtle"
 	"net/http"
 
 	"gitlab.com/g6834/team41/auth/internal/auth"
+	"gitlab.com/g6834/team41/auth/internal/models"
 	"gitlab.com/g6834/team41/auth/internal/repositories"
 )
 
@@ -30,6 +32,13 @@ func NewBasicAuth(db repositories.UserRepository) func(http.Handler) http.Handle
 
 					// Check
 					if passwordMatch {
+
+						ctx := context.WithValue(
+							r.Context(),
+							models.CtxUsername{},
+							username,
+						)
+						r := r.WithContext(ctx)
 						next.ServeHTTP(w, r)
 						return
 					}

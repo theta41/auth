@@ -6,6 +6,6 @@ import (
 
 type Auth interface {
 	Info(login string) (*models.User, error)
-	Login(login, password string) (models.TokenPair, error)
+	CreateTokens(login string) (models.TokenPair, error)
 	Validate(login string, tokens models.TokenPair) (models.TokenPair, error)
 }

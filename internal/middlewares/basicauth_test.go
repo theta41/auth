@@ -34,9 +34,10 @@ func TestBasicAuth(t *testing.T) {
 		header            http.Header
 		expectNextCounter int
 		expectStatus      int
+		expectUsername    string
 	}{
-		{"empty_header", http.Header{}, 0, http.StatusForbidden},
-		{"valid_basic_auth", http.Header{"Authorization": {"Basic dGVzdDEyMzpxd2VydHk="}}, 1, http.StatusOK},
+		{"empty_header", http.Header{}, 0, http.StatusForbidden, ""},
+		{"valid_basic_auth", http.Header{"Authorization": {"Basic dGVzdDEyMzpxd2VydHk="}}, 1, http.StatusOK, "test123"},
 	}
 
 	for _, tCase := range cases {
@@ -44,8 +45,10 @@ func TestBasicAuth(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 
 			var nextHandlerWasCalled int
+			var username string
 			nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				//tests may also goes here..
+				username = r.Context().Value(models.CtxUsername{}).(string)
 				w.WriteHeader(http.StatusOK)
 
 				nextHandlerWasCalled++
@@ -62,6 +65,7 @@ func TestBasicAuth(t *testing.T) {
 			handlerBasicAuth.ServeHTTP(middlewareRecorder, request)
 
 			assert.Equal(t, tc.expectNextCounter, nextHandlerWasCalled, "nextHandlerWasCalled")
+			assert.Equal(t, tc.expectUsername, username)
 			assert.Equal(t, tc.expectStatus, middlewareRecorder.Code)
 		})
 	}

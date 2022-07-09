@@ -21,9 +21,9 @@ func (l Logout) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	env.E().M.LogoutCounter.Inc()
 
+	w.Header().Set("Set-Cookie", "Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly")
+
 	//clear cookies
 	util.ClearLoginCookie(w)
 	util.ClearTokensCookie(w)
-
-	w.Header().Set("Set-Cookie", "Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly")
 }

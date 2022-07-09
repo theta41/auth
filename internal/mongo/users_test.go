@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	"gitlab.com/g6834/team41/auth/internal/models"
 )
 
@@ -21,12 +22,12 @@ const (
 	hardcoded_TEST_DB_NAME     = "team41"
 )
 
-/* Copy-paste pool
+/* old copy-paste pool
 port, err := strconv.Atoi(os.Getenv("TEST_DB_PORT"))
 db, err = NewUsers(os.Getenv("TEST_DB_LOGIN"), os.Getenv("TEST_DB_PASSWORD"), os.Getenv("TEST_DB_ADDRESS"), os.Getenv("TEST_DB_NAME"), port)
 */
 
-func TestAddGet(t *testing.T) {
+func TestMongo(t *testing.T) {
 	var db *Users
 	var err error
 	t.Run("connecting to db", func(t *testing.T) {
@@ -84,6 +85,15 @@ func TestAddGet(t *testing.T) {
 
 		if upd.Token != otherToken {
 			t.Errorf("wrong token, expected %v but got %v", otherToken, upd.Token)
+		}
+	})
+
+	t.Run("build defaults", func(t *testing.T) {
+		_ = db.DeleteUser(hardcoded_DEFAULT_TEST_USER)
+		BuildDefaultsIfNeeded(db, logrus.New())
+		_, err := db.GetUser(hardcoded_DEFAULT_TEST_USER)
+		if err != nil {
+			t.Error(err)
 		}
 	})
 
