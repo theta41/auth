@@ -24,7 +24,7 @@ type App struct {
 func NewApp() *App {
 	a := &App{
 		m:  chi.NewRouter(),
-		ds: auth.New(env.E().UR),
+		ds: auth.New(env.E().UR, env.E().C),
 	}
 
 	return a
@@ -35,7 +35,6 @@ func (a *App) Run() error {
 	a.bindHandlers()
 
 	//start prometheus
-	//TODO make it nicer later :)
 	http.Handle(MetricsPath, promhttp.Handler())
 	go http.ListenAndServe(env.E().C.MetricsAddress, nil)
 

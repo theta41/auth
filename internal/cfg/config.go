@@ -23,6 +23,13 @@ type Config struct {
 	} `yaml:"db"`
 }
 
+func (c *Config) GetJWTSecret() string {
+	return c.JWTSecret
+}
+func (c *Config) GetJWTTTL() int {
+	return c.JWTTTL
+}
+
 func NewConfig(yamlFile string) (*Config, error) {
 	conf := &Config{}
 	err := loadYaml(yamlFile, conf)
