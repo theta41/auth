@@ -29,6 +29,9 @@ func (c *Config) GetJWTSecret() string {
 func (c *Config) GetJWTTTL() int {
 	return c.JWTTTL
 }
+func (c *Config) GetProfiling() bool {
+	return c.Profiling
+}
 
 func NewConfig(yamlFile string) (*Config, error) {
 	conf := &Config{}

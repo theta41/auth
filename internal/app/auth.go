@@ -59,7 +59,7 @@ func (a *App) bindHandlers() {
 	a.m.Handle(ProfilePath, handlers.Profiling{})
 
 	a.m.Route("/debug/pprof", func(r chi.Router) {
-		r.Use(middlewares.CheckProf)
+		r.Use(middlewares.NewCheckProf(env.E().L, env.E().C))
 
 		r.HandleFunc("/", pprof.Index)
 		r.HandleFunc("/cmdline", pprof.Cmdline)
@@ -73,7 +73,7 @@ func (a *App) bindHandlers() {
 
 func (a *App) registerMiddleware() {
 	//a.m.Use(middleware.Logger)
-	a.m.Use(middlewares.Logrus)
+	a.m.Use(middlewares.NewLogrus(env.E().L))
 }
 
 func bindSwagger(r *chi.Mux) {
