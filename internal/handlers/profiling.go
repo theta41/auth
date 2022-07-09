@@ -2,13 +2,21 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/getsentry/sentry-go"
 	"gitlab.com/g6834/team41/auth/internal/env"
-	"net/http"
 )
 
 type Profiling struct{}
 
+// @Summary Profile
+// @Description Profile
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 500
+// @Router /profile [get]
 func (p Profiling) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	env.E().C.Profiling = !env.E().C.Profiling
 

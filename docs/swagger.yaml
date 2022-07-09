@@ -1,0 +1,76 @@
+basePath: /
+definitions:
+  handlers.LoginRequest:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: Project Auth by Team41
+  title: Auth API
+  version: "1.0"
+paths:
+  /login:
+    get:
+      consumes:
+      - application/json
+      description: Login
+      parameters:
+      - description: Login
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: ""
+      summary: Login
+  /logout:
+    get:
+      consumes:
+      - application/json
+      description: Logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: Logout
+  /profile:
+    get:
+      consumes:
+      - application/json
+      description: Profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: ""
+      summary: Profile
+  /validate:
+    get:
+      consumes:
+      - application/json
+      description: Validate
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "403":
+          description: ""
+        "500":
+          description: ""
+      summary: Validate
+swagger: "2.0"

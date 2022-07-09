@@ -11,6 +11,9 @@ import (
 	authgrpc "gitlab.com/g6834/team41/auth/internal/grpc"
 	"gitlab.com/g6834/team41/auth/internal/handlers"
 	"gitlab.com/g6834/team41/auth/internal/middlewares"
+
+	httpSwagger "github.com/swaggo/http-swagger"
+	_ "gitlab.com/g6834/team41/auth/docs"
 )
 
 type App struct {
@@ -36,7 +39,7 @@ func (a *App) Run() error {
 	http.Handle(MetricsPath, promhttp.Handler())
 	go http.ListenAndServe(env.E().C.MetricsAddress, nil)
 
-	authgrpc.StartServer(":4000", a.ds)
+	authgrpc.StartServer(env.E().C.GrpcAddress, a.ds)
 
 	return http.ListenAndServe(env.E().C.HostAddress, a.m)
 }
@@ -65,9 +68,19 @@ func (a *App) bindHandlers() {
 		r.HandleFunc("/symbol", pprof.Symbol)
 		r.HandleFunc("/trace", pprof.Trace)
 	})
+
+	bindSwagger(a.m)
 }
 
 func (a *App) registerMiddleware() {
 	//a.m.Use(middleware.Logger)
 	a.m.Use(middlewares.Logrus)
+}
+
+func bindSwagger(r *chi.Mux) {
+	r.Route("/swagger", func(r chi.Router) {
+		r.HandleFunc("/*", httpSwagger.Handler(
+			httpSwagger.URL("http://localhost"+env.E().C.HostAddress+"/swagger/doc.json"),
+		))
+	})
 }

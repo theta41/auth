@@ -9,6 +9,12 @@ import (
 
 type Logout struct{}
 
+// @Summary Logout
+// @Description Logout
+// @Accept json
+// @Produce json
+// @Success 200
+// @Router /logout [get]
 func (l Logout) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	_, span := env.E().Tracer().Start(r.Context(), "Logout")
 	defer span.End()
