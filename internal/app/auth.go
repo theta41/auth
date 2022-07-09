@@ -38,8 +38,9 @@ func (a *App) Run() error {
 	http.Handle(MetricsPath, promhttp.Handler())
 	go http.ListenAndServe(env.E().C.MetricsAddress, nil)
 
-	authgrpc.StartServer(env.E().C.GrpcAddress, a.ds)
+	go authgrpc.StartServer(env.E().C.GrpcAddress, a.ds)
 
+	env.E().L.Infof("auth RAPI ListenAndServe at %v", env.E().C.HostAddress)
 	return http.ListenAndServe(env.E().C.HostAddress, a.m)
 }
 
@@ -74,6 +75,7 @@ func (a *App) bindHandlers() {
 func (a *App) registerMiddleware() {
 	//a.m.Use(middleware.Logger)
 	a.m.Use(middlewares.NewLogrus(env.E().L))
+	a.m.Use(middlewares.NewBasicAuth(env.E().UR))
 }
 
 func bindSwagger(r *chi.Mux) {
