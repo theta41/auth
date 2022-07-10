@@ -3,10 +3,10 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 
 	"gitlab.com/g6834/team41/auth/internal/handlers/util"
+	"gitlab.com/g6834/team41/auth/internal/models"
 	"gitlab.com/g6834/team41/auth/internal/ports"
 
 	"github.com/getsentry/sentry-go"
@@ -54,20 +54,15 @@ func (l Login) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // @Failure 500
 // @Router /login [get]
 func (l Login) handle(w http.ResponseWriter, r *http.Request) error {
-	// Parse body.
-	req, err := parseRequest(r)
-	if err != nil {
-		return fmt.Errorf("error. parse request: %w", err)
-	}
 
-	// Login within domain
-	tokens, err := l.auth.Login(req.Login, req.Password)
+	username := r.Context().Value(models.CtxUsername{}).(string)
+
+	tokens, err := l.auth.CreateTokens(username)
 	if err != nil {
 		return fmt.Errorf("invalid login/password")
 	}
 
-	// Prepare response
-	util.PutLoginToCookie(w, req.Login)
+	util.PutLoginToCookie(w, username)
 	util.PutTokensToCookie(w, tokens)
 
 	resp := struct {
@@ -89,19 +84,4 @@ func (l Login) handle(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return nil
-}
-
-func parseRequest(r *http.Request) (*LoginRequest, error) {
-	req := LoginRequest{}
-	bytes, err := io.ReadAll(r.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(bytes, &req)
-	if err != nil {
-		return nil, err
-	}
-
-	return &req, nil
 }

@@ -1,22 +1,32 @@
 package middlewares
 
 import (
-	"github.com/getsentry/sentry-go"
-	"gitlab.com/g6834/team41/auth/internal/env"
 	"net/http"
+
+	"github.com/getsentry/sentry-go"
+	"github.com/sirupsen/logrus"
 )
 
-func CheckProf(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !env.E().C.Profiling {
-			w.WriteHeader(http.StatusForbidden)
-			_, err := w.Write([]byte("{}"))
-			if err != nil {
-				sentry.CaptureException(err)
-				env.E().L.Error(err)
+type ProfilingConfigInterface interface {
+	GetProfiling() bool
+}
+
+func NewCheckProf(
+	logger *logrus.Logger,
+	cfg ProfilingConfigInterface,
+) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if !cfg.GetProfiling() {
+				w.WriteHeader(http.StatusForbidden)
+				_, err := w.Write([]byte("{}"))
+				if err != nil {
+					sentry.CaptureException(err)
+					logger.Error(err)
+				}
+			} else {
+				next.ServeHTTP(w, r)
 			}
-		} else {
-			next.ServeHTTP(w, r)
-		}
-	})
+		})
+	}
 }

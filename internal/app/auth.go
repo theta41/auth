@@ -24,7 +24,7 @@ type App struct {
 func NewApp() *App {
 	a := &App{
 		m:  chi.NewRouter(),
-		ds: auth.New(env.E().UR),
+		ds: auth.New(env.E().UR, env.E().C),
 	}
 
 	return a
@@ -35,12 +35,12 @@ func (a *App) Run() error {
 	a.bindHandlers()
 
 	//start prometheus
-	//TODO make it nicer later :)
 	http.Handle(MetricsPath, promhttp.Handler())
 	go http.ListenAndServe(env.E().C.MetricsAddress, nil)
 
-	authgrpc.StartServer(env.E().C.GrpcAddress, a.ds)
+	go authgrpc.StartServer(env.E().C.GrpcAddress, a.ds)
 
+	env.E().L.Infof("auth RAPI ListenAndServe at %v", env.E().C.HostAddress)
 	return http.ListenAndServe(env.E().C.HostAddress, a.m)
 }
 
@@ -48,19 +48,28 @@ const (
 	LoginPath    = "/login"
 	LogoutPath   = "/logout"
 	ValidatePath = "/validate"
+	InfoPath     = "/i"
 	MetricsPath  = "/metrics"
 	ProfilePath  = "/profile"
 )
 
 func (a *App) bindHandlers() {
-	a.m.Handle(LoginPath, handlers.NewLogin(a.ds))
-	a.m.Handle(LogoutPath, handlers.Logout{})
+	a.m.Handle(
+		LoginPath,
+		middlewares.NewBasicAuth(env.E().UR)(handlers.NewLogin(a.ds)),
+	)
+	a.m.Handle(
+		LogoutPath,
+		middlewares.NewBasicAuth(env.E().UR)(handlers.Logout{}),
+	)
+
 	a.m.Handle(ValidatePath, handlers.Validate{})
+	a.m.Handle(InfoPath, handlers.Info{})
 
 	a.m.Handle(ProfilePath, handlers.Profiling{})
 
 	a.m.Route("/debug/pprof", func(r chi.Router) {
-		r.Use(middlewares.CheckProf)
+		r.Use(middlewares.NewCheckProf(env.E().L, env.E().C))
 
 		r.HandleFunc("/", pprof.Index)
 		r.HandleFunc("/cmdline", pprof.Cmdline)
@@ -74,7 +83,8 @@ func (a *App) bindHandlers() {
 
 func (a *App) registerMiddleware() {
 	//a.m.Use(middleware.Logger)
-	a.m.Use(middlewares.Logrus)
+	a.m.Use(middlewares.NewLogrus(env.E().L))
+	//a.m.Use(middlewares.NewBasicAuth(env.E().UR))
 }
 
 func bindSwagger(r *chi.Mux) {

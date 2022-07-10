@@ -8,4 +8,7 @@ type UserRepository interface {
 
 	// GetUser selecting one user by login
 	GetUser(login string) (*models.User, error)
+
+	AddUser(user models.User) error
+	DeleteUser(login string) error
 }

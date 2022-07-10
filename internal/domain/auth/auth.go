@@ -6,34 +6,40 @@ import (
 
 	"github.com/google/uuid"
 	"gitlab.com/g6834/team41/auth/internal/auth"
-	"gitlab.com/g6834/team41/auth/internal/env"
 	"gitlab.com/g6834/team41/auth/internal/models"
 	"gitlab.com/g6834/team41/auth/internal/repositories"
 )
 
+type JwtConfigInterface interface {
+	GetJWTSecret() string
+	GetJWTTTL() int
+}
+
 type Service struct {
 	db repositories.UserRepository
 	//TODO add logger?
-	//TODO add conf or jwt-conf? (.C.JWTTTL and .C.JWTSecret)
+	cfg JwtConfigInterface
 	//TODO add tools? (auth.GetHash, auth.NewJWT)
 }
 
-func New(db repositories.UserRepository) *Service {
+func New(db repositories.UserRepository, cfg JwtConfigInterface) *Service {
 	return &Service{
-		db: db,
+		db:  db,
+		cfg: cfg,
 	}
 }
 
-func (s *Service) Login(login, password string) (models.TokenPair, error) {
+func (s *Service) CreateTokens(login string) (models.TokenPair, error) {
 	user, err := s.db.GetUser(login)
 	if err != nil {
 		return models.TokenPair{}, fmt.Errorf("invalid login/password")
 	}
 
-	pass := auth.GetHash(password)
-	if user.PasswordHash != pass {
-		return models.TokenPair{}, fmt.Errorf("invalid login/password")
-	}
+	//// Verified in BasicAuth midleware
+	// pass := auth.GetHash(password)
+	// if user.PasswordHash != pass {
+	// 	return models.TokenPair{}, fmt.Errorf("invalid login/password")
+	// }
 
 	jwt, err := s.updateTokens(user)
 	if err != nil {
@@ -81,7 +87,8 @@ func (s *Service) updateTokens(user *models.User) (jwt string, err error) {
 		return "", fmt.Errorf("change token error: %w", err)
 	}
 
-	jwt, err = auth.NewJWT(user.Login, time.Now().Add(time.Duration(env.E().C.JWTTTL)*time.Second), env.E().C.JWTSecret)
+	expire := time.Now().Add(time.Duration(s.cfg.GetJWTTTL()) * time.Second)
+	jwt, err = auth.NewJWT(user.Login, expire, s.cfg.GetJWTSecret())
 	if err != nil {
 		return "", fmt.Errorf("new JWT error: %w", err)
 	}

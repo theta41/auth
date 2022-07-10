@@ -22,6 +22,6 @@ func (v Validate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	env.E().M.ValidateCounter.Inc()
 
-	w.WriteHeader(http.StatusForbidden)
+	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("[]"))
 }

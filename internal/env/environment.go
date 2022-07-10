@@ -2,11 +2,12 @@ package env
 
 import (
 	"errors"
-	"gitlab.com/g6834/team41/auth/internal/mongo"
-	"gitlab.com/g6834/team41/auth/internal/repositories"
 	"os"
 	"sync"
 	"time"
+
+	"gitlab.com/g6834/team41/auth/internal/mongo"
+	"gitlab.com/g6834/team41/auth/internal/repositories"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/sirupsen/logrus"
@@ -69,6 +70,10 @@ func E() *Environment {
 		if err != nil {
 			e.L.Panic(err)
 		}
+
+		// ugly default user stub
+		// all for passing tests...
+		mongo.BuildDefaultsIfNeeded(e.UR, e.L)
 	})
 
 	return e

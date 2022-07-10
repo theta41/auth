@@ -14,6 +14,37 @@ const (
 	cookieRefreshToken = "RefreshToken"
 )
 
+func mustCookie(r *http.Request, name string) string {
+	v, err := r.Cookie(name)
+	if err != nil || v == nil {
+		logrus.Infof("missing cookie %s", name)
+		return ""
+	}
+
+	// logrus.Debugf ?
+	logrus.Infof("got cookie %v", v)
+	return v.Value
+}
+
+func GetTokensFromCookie(r *http.Request) models.TokenPair {
+
+	access := mustCookie(r, cookieAccessToken)
+	refresh := mustCookie(r, cookieRefreshToken)
+
+	return models.TokenPair{
+		AccessToken:  access,
+		RefreshToken: refresh,
+	}
+}
+
+func GetLoginFromCookie(r *http.Request) string {
+	//return "test@example.org"
+
+	login := mustCookie(r, cookieLogin)
+
+	return login
+}
+
 func PutLoginToCookie(w http.ResponseWriter, loginValue string) {
 	loginCookie := http.Cookie{
 		Name:    cookieLogin,
@@ -27,7 +58,13 @@ func PutLoginToCookie(w http.ResponseWriter, loginValue string) {
 }
 
 func ClearLoginCookie(w http.ResponseWriter) {
-	loginCookie := http.Cookie{Name: cookieLogin}
+	loginCookie := http.Cookie{
+		Name:     cookieLogin,
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+	}
 
 	logrus.Print("clear login cookie", loginCookie)
 
@@ -53,8 +90,20 @@ func PutTokensToCookie(w http.ResponseWriter, tokens models.TokenPair) {
 }
 
 func ClearTokensCookie(w http.ResponseWriter) {
-	access := http.Cookie{Name: cookieAccessToken}
-	refresh := http.Cookie{Name: cookieRefreshToken}
+	access := http.Cookie{
+		Name:     cookieAccessToken,
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+	}
+	refresh := http.Cookie{
+		Name:     cookieRefreshToken,
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+	}
 
 	logrus.Print("clear tokens cookies", access, refresh)
 
