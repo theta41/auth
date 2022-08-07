@@ -2,11 +2,12 @@ package env
 
 import (
 	"errors"
-	"gitlab.com/g6834/team41/auth/internal/jsondb"
-	"gitlab.com/g6834/team41/auth/internal/repositories"
 	"os"
 	"sync"
 	"time"
+
+	"gitlab.com/g6834/team41/auth/internal/mongo"
+	"gitlab.com/g6834/team41/auth/internal/repositories"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/sirupsen/logrus"
@@ -29,41 +30,50 @@ const (
 	HostAddress    = "HOST_ADDRESS"
 	MetricsAddress = "METRICS_ADDRESS"
 	JWTSecret      = "JWT_SECRET"
+	DBPassword     = "DB_PASSWORD"
+	DBLogin        = "DB_LOGIN"
 	ServiceName    = "auth"
 	TracerName     = ServiceName
 )
 
 func E() *Environment {
 	once.Do(func() {
-		//prepare
+		// Prepare.
 		args := parseArgs()
 		configYamlFilename := args["c"]
-		if configYamlFilename == "" {
-			configYamlFilename = "config.yaml"
-		}
 
-		//init Environment
+		// Init Environment.
 		e = &Environment{}
+
+		// Configure logger
 		e.L = logrus.New()
+		e.L.SetFormatter(&logrus.JSONFormatter{})
+		e.L.SetReportCaller(true)
+
 		e.loadConfig(configYamlFilename)
 
 		initSentry(e.C.SentryDSN)
 		initJaeger("team41-"+ServiceName, e.C.JaegerCollector)
 
-		//init prometheus counters
+		// Init prometheus counters.
 		e.M = newMetrics(ServiceName)
 
-		//validate environment state
+		// Validate environment state.
 		err := e.validate()
 		if err != nil {
 			sentry.CaptureException(err)
 			panic(err)
 		}
 
-		e.UR, err = jsondb.NewJsonUsers("example.json")
+		e.L.Info("Connecting to database...")
+		e.UR, err = mongo.NewUsers(e.C.DB.Login, e.C.DB.Password, e.C.DB.Address, e.C.DB.Name, e.C.DB.Port)
 		if err != nil {
 			e.L.Panic(err)
 		}
+
+		// ugly default user stub
+		// all for passing tests...
+		mongo.BuildDefaultsIfNeeded(e.UR, e.L)
 	})
 
 	return e
@@ -75,17 +85,30 @@ func OnStop() {
 
 // validate ensures that all required environment variables has been set.
 func (E *Environment) validate() error {
-	switch {
-	case E.C.HostAddress == "":
-		return errors.New("$" + HostAddress + " isn't set")
-	case E.C.MetricsAddress == "":
-		return errors.New("$" + MetricsAddress + " isn't set")
-	case E.C.JWTSecret == "":
-		return errors.New("$" + JWTSecret + " isn't set")
-	case E.C.SentryDSN == "":
-		return errors.New("sentry DSN isn't set")
-	case E.C.JaegerCollector == "":
-		return errors.New("jaeger collector isn't set")
+	toCheck := []struct {
+		Name  string
+		Value string
+	}{
+		{HostAddress, E.C.HostAddress},
+		{MetricsAddress, E.C.MetricsAddress},
+		{JWTSecret, E.C.JWTSecret},
+		{DBPassword, E.C.DB.Password},
+		{DBLogin, E.C.DB.Login},
+		{"sentry DSN", E.C.SentryDSN},
+		{"jaeger collector", E.C.JaegerCollector},
+	}
+
+	return checkEmpty(toCheck...)
+}
+
+func checkEmpty(s ...struct {
+	Name  string
+	Value string
+}) error {
+	for i := range s {
+		if s[i].Value == "" {
+			return errors.New("$" + s[i].Name + " isn't set")
+		}
 	}
 
 	return nil
@@ -112,4 +135,6 @@ func (E *Environment) loadConfig(filename string) {
 	E.C.HostAddress = getEnv(HostAddress, E.C.HostAddress)
 	E.C.MetricsAddress = getEnv(MetricsAddress, E.C.MetricsAddress)
 	E.C.JWTSecret = getEnv(JWTSecret, E.C.JWTSecret)
+	E.C.DB.Password = getEnv(DBPassword, E.C.DB.Password)
+	E.C.DB.Login = getEnv(DBLogin, E.C.DB.Login)
 }

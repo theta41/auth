@@ -1,5 +1,14 @@
 include:
   remote: 'https://gitlab.com/mts-teta-public/devops-tools/-/raw/master/.gitlab-ci-main.yml'
+build image:
+  variables:
+    DB_LOGIN: $DB_LOGIN
+    DB_PASSWORD: $DB_PASSWORD
+
+deploy:
+  variables:
+    HELM_TEMPLATE: https://gitlab.com/vladimish/theta/-/raw/main/auth.tgz
+
 newman tests:
   variables:
     TEST_COLLECTION_NAME: auth

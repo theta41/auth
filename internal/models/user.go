@@ -8,3 +8,5 @@ type User struct {
 	PasswordHash string    `json:"password_hash"`
 	RegisterDate time.Time `json:"register_date"`
 }
+
+type CtxUsername struct{}
